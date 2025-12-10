@@ -104,6 +104,15 @@ button:hover {
     border-color: #1a1a1a;
 }
 
+.case.active-saisie {
+    border-color: #3e5e9b; /* Bordure bleue pour les lettres en cours de saisie */
+    color: #1a1a1a;
+}
+
+.ligne-active .case {
+    border-color: #aaa; /* Afficher la bordure plus claire pour la ligne en cours */
+}
+
 /* --- Formulaire et Messages --- */
 #sutom-form {
     margin-top: 20px;
