@@ -146,27 +146,40 @@ app.get('/api/mot-cible/:longueur', (req, res) => {
 });
 
 // Route pour vérifier une proposition
+// server.js (Mise à jour de la route POST /api/verifier)
+
 app.post('/api/verifier', (req, res) => {
-    const { proposition, longueur } = req.body;
-    const motCible = motsQuotidiens[longueur];
-
-    if (!motCible) {
-        return res.status(404).send({ message: "Mot cible non défini pour cette longueur." });
+    const { proposition, longueur } = req.body; // proposition est le mot complet normalisé
+    
+    // 1. Validation de base
+    if (!proposition || proposition.length !== longueur) {
+        return res.status(400).json({ message: 'Proposition invalide.' });
     }
 
-    if (proposition.length !== motCible.length) {
-        return res.status(400).send({ message: "La proposition n'a pas la bonne longueur." });
+    // 2. VÉRIFICATION D'EXISTENCE DANS LE DICTIONNAIRE
+    const motsPossibles = getMotsParLongueur(longueur); 
+    
+    // Le dictionnaire stocke les mots en MAJUSCULES et SANS ACCENT (normalisés)
+    const propositionNormalisee = proposition.toUpperCase(); 
+    
+    // Vérifier si le mot existe dans le tableau de mots de cette longueur
+    if (!motsPossibles.includes(propositionNormalisee)) {
+        // Renvoie un statut 404 ou 400 avec un message clair si le mot n'existe pas
+        return res.status(404).json({ message: `Le mot "${proposition}" n'est pas dans le dictionnaire pour la longueur ${longueur}.` });
     }
-    
-    // Simplification: en vrai Sutom, il faut vérifier que le mot existe dans le DICTIONNAIRE.
-    // Pour cet exemple, on suppose que le mot proposé est valide.
-    
-    const resultatVerification = verifierMot(proposition, motCible);
 
-    res.json({
-        resultat: resultatVerification,
-        gagne: proposition.toUpperCase() === motCible.toUpperCase()
-    });
+    // 3. Si le mot existe, on continue avec la logique Sutom
+    const motCible = motsQuotidiens[longueur].toUpperCase();
+    
+    let gagne = false;
+    if (propositionNormalisee === motCible) {
+        gagne = true;
+    }
+
+    const resultat = verifierProposition(propositionNormalisee, motCible);
+
+    // 4. Renvoie le résultat de la vérification Sutom
+    res.json({ resultat, gagne });
 });
 
 

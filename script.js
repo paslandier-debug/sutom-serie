@@ -324,6 +324,8 @@ function chargerNouveauJeu() {
 
 // script.js (Fonction pour gérer la soumission du formulaire)
 
+// script.js (Fonction gererSoumission)
+
 async function gererSoumission(event) {
     event.preventDefault();
 
@@ -333,46 +335,60 @@ async function gererSoumission(event) {
     }
     
     const input = document.getElementById('proposition-input');
-    // Récupère la partie du mot tapée par l'utilisateur (sans la première lettre)
     let propositionSaisie = input.value.toUpperCase().trim();
     
-    // --- NOUVEAU : CONSTRUCTION DU MOT COMPLET ---
-    let proposition = premiereLettre + propositionSaisie;
-    input.value = ''; // Efface l'input après la soumission
+    // 1. CONSTRUCTION DU MOT COMPLET (avec accents, si présents)
+    let propositionAvecAccents = premiereLettre + propositionSaisie;
 
-    if (proposition.length !== motCibleLongueur) {
+    // 2. NORMALISATION DU MOT POUR LE SERVEUR
+    // La variable est déclarée ici (dans la portée de la fonction)
+    let propositionNormalisee = propositionAvecAccents;
+    
+    // 3. VÉRIFICATION DE LA LONGUEUR
+    if (propositionAvecAccents.length !== motCibleLongueur) {
         document.getElementById('message').textContent = `Le mot doit avoir ${motCibleLongueur} lettres.`;
         return;
     }
     
-    // NOTE : La vérification de la première lettre n'est plus nécessaire ici
-    // car on l'ajoute automatiquement.
+    // Vider l'input APRES la vérification de longueur
+    input.value = ''; 
+
 
     try {
+        // L'appel fetch utilise maintenant 'propositionNormalisee' qui est définie au-dessus.
         const response = await fetch(`${SERVER_URL}/verifier`, {
-            method: 'POST',
+            method: 'POST', 
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ proposition, longueur: motCibleLongueur })
+            body: JSON.stringify({ proposition: propositionNormalisee, longueur: motCibleLongueur })
         });
-        
 
+        // ... (suite de la gestion de la réponse) ...
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json(); 
             document.getElementById('message').textContent = `Erreur: ${errorData.message}`;
+            
+            // Si le mot est invalide, on le remet dans la grille.
+            // On utilise la version AVEC ACCENTS pour l'affichage.
+            const propositionSaisieRetour = propositionAvecAccents.substring(1); 
+            input.value = propositionSaisieRetour;
+            mettreAJourAffichageSaisie(propositionAvecAccents); 
+            
             return;
         }
 
         const data = await response.json();
-        
+        // ...
+                
         // Appel de la fonction d'affichage mise à jour
         afficherResultat(data.resultat, data.gagne); 
 
+
+        
     } catch (error) {
-        console.error('Erreur de vérification:', error);
+        console.error('Erreur de vérification (réseau):', error);
         document.getElementById('message').textContent = 'Erreur lors de la communication avec le serveur.';
     }
 }
-
 
 // --- Initialisation ---
 
