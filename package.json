@@ -14,5 +14,14 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.2.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paslandier-debug/sutom-serie.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paslandier-debug/sutom-serie/issues"
+  },
+  "homepage": "https://github.com/paslandier-debug/sutom-serie#readme"
 }
