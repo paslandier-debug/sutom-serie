@@ -1,5 +1,7 @@
 // script.js
-const SERVER_URL = 'http://localhost:3000/api';
+// utilise le chemin relatif au serveur hôte
+const SERVER_URL = '/api';
+//xxx const SERVER_URL = 'http://localhost:3000/api';
 const MAX_ESSAIS = 6;
 
 let motCibleLongueur = 0;
