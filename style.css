@@ -1,0 +1,202 @@
+/* style.css */
+
+/* --- Général et Corps --- */
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f7f7f7;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    color: #3e5e9b;
+    margin-bottom: 10px;
+}
+
+/* --- Sélecteur de Longueur --- */
+.controls {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#longueur-select,
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+button {
+    background-color: #3e5e9b;
+    color: white;
+    border: none;
+}
+
+button:hover {
+    background-color: #5a7ec3;
+}
+
+/* --- Grille du Jeu --- */
+.grille {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Espace entre les lignes */
+    margin-top: 20px;
+}
+
+.ligne {
+    display: flex;
+    gap: 5px; /* Espace entre les cases */
+}
+
+.case {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    border: 2px solid #ccc; /* Bordure par défaut */
+    border-radius: 4px;
+    text-transform: uppercase;
+    user-select: none;
+    transition: background-color 0.5s ease-in-out, transform 0.1s;
+}
+
+/* Styles pour les cases après vérification (statuts Sutom) */
+.bien_place {
+    background-color: #6aaa64 !important; /* Vert */
+    border-color: #6aaa64 !important;
+    color: white;
+}
+
+.mal_place {
+    background-color: #c9b458 !important; /* Jaune */
+    border-color: #c9b458 !important;
+    color: white;
+}
+
+.absente {
+    background-color: #787c7e !important; /* Gris foncé */
+    border-color: #787c7e !important;
+    color: white;
+}
+
+/* Style spécifique de la première lettre */
+.premiere_lettre {
+    background-color: #3e5e9b; /* Bleu plus foncé */
+    border-color: #3e5e9b;
+    color: white;
+}
+
+/* Style de la ligne en cours (input non encore soumis) */
+.case.active {
+    border-color: #1a1a1a;
+}
+
+/* --- Formulaire et Messages --- */
+#sutom-form {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+#proposition-input {
+    padding: 10px;
+    font-size: 18px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 1.2em;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#info {
+    font-size: 1.1em;
+    font-style: italic;
+    color: #555;
+}
+
+/* --- Ajustement pour les petits écrans --- */
+@media (max-width: 600px) {
+    .case {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    #longueur-select, button, #proposition-input {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+}
+
+/* style.css (Ajouter ces règles à la fin du fichier) */
+
+/* --- Clavier Virtuel --- */
+#clavier-container {
+    margin-top: 30px;
+    width: 100%;
+    max-width: 600px; /* Limiter la largeur pour une meilleure lisibilité */
+}
+
+.clavier-ligne {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.clavier-touche {
+    flex-grow: 1; /* Permet aux touches de s'étirer */
+    padding: 12px 0;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #d3d6da; /* Couleur par défaut */
+    color: #1a1a1a;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    min-width: 25px; /* Pour les touches spéciales */
+    transition: background-color 0.2s;
+}
+
+.clavier-touche:hover {
+    background-color: #c5c8cc;
+}
+
+/* Styles pour les touches spéciales (Entrée et Effacer) */
+.touche-speciale {
+    flex-grow: 1.5; /* Les touches spéciales sont plus larges */
+    font-size: 14px;
+}
+
+/* Styles pour les touches du clavier en fonction des statuts Sutom */
+.clavier-touche.bien_place {
+    background-color: #6aaa64; 
+    color: white;
+}
+.clavier-touche.mal_place {
+    background-color: #c9b458;
+    color: white;
+}
+.clavier-touche.absente {
+    background-color: #787c7e;
+    color: white;
+}

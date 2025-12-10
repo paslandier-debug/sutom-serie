@@ -1,0 +1,6 @@
+# Ignorer le dossier des modules Node.js
+node_modules/
+
+# Ignorer les fichiers de log ou temporaires
+*.log
+.DS_Store

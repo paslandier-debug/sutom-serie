@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sutom - Le Mot du Jour</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <h1>Sutom du Jour</h1>
+
+    <div class="controls">
+        <label for="longueur-select">Choisir la longueur :</label>
+        <select id="longueur-select">
+            <option value="6" selected>6 lettres</option>
+            <option value="7">7 lettres</option>
+            <option value="8">8 lettres</option>
+            <option value="9">9 lettres</option>
+        </select>
+        <button onclick="chargerNouveauJeu()">Nouveau Mot du Jour</button>
+    </div>
+
+    <div id="info"></div>
+    <div id="grille-container" class="grille">
+        </div>
+
+    <form id="sutom-form">
+        <input type="text" id="proposition-input" placeholder="Votre proposition" required minlength="6" maxlength="9">
+        <button type="submit">Valider</button>
+    </form>
+    
+    <div id="message"></div>
+
+    <div id="clavier-container">
+        </div>
+        
+    <script src="script.js"></script>
+</body>
+</html>
