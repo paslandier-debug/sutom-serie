@@ -190,10 +190,30 @@ button:hover {
     background-color: #c5c8cc;
 }
 
-/* Styles pour les touches spéciales (Entrée et Effacer) */
+/* Style général pour toutes les touches spéciales (Entrée et ⌫) */
 .touche-speciale {
-    flex-grow: 1.5; /* Les touches spéciales sont plus larges */
+    flex-grow: 1.5; 
     font-size: 14px;
+    /* Ajustement de la taille pour l'icône */
+    padding: 10px 0; 
+}
+
+/* Style spécifique pour la touche d'effacement (pour augmenter la taille du symbole) */
+.clavier-touche:last-child {
+    /* Ceci cible généralement la touche d'effacement si elle est la dernière de la ligne */
+    /* Cependant, pour être plus précis, vous pourriez vérifier la taille ou le contenu */
+}
+
+/* Vous pouvez aussi cibler par l'attribut de contenu si vous utilisez JavaScript
+   pour lui donner une classe unique. Si ce n'est pas le cas, restons simple : */
+   
+.clavier-touche {
+    font-size: 16px; 
+}
+
+/* Si vous trouvez que le symbole ⌫ est trop petit, vous pouvez essayer ceci : */
+.clavier-ligne:last-child .clavier-touche:last-child {
+    font-size: 20px; /* Augmenter la taille uniquement pour le dernier élément de la dernière ligne */
 }
 
 /* Styles pour les touches du clavier en fonction des statuts Sutom */

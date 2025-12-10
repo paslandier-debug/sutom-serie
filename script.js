@@ -16,7 +16,7 @@ let etatClavier = {};
 const CLAVIER_LAYOUT = [
     ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-    ['ENTRÉE', 'W', 'X', 'C', 'V', 'B', 'N', 'EFFACER']
+    ['ENTRÉE', 'W', 'X', 'C', 'V', 'B', 'N', '-', '⌫']
 ];
 
 // --- NOUVELLES FONCTIONS CLAVIER ---
@@ -115,7 +115,7 @@ function gererToucheClavier(touche) {
         document.getElementById('sutom-form').dispatchEvent(new Event('submit'));
         return; 
         
-    } else if (touche === 'EFFACER') {
+    } else if (touche === '⌫') {
         // Effacer le dernier caractère
         nouvellePropositionSansPremiere = valeurActuelleSansPremiere.slice(0, -1);
         
