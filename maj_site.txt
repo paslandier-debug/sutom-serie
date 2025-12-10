@@ -1,0 +1,9 @@
+après avoir modifier un fichier, pour que les modifications soient prises en compte dans GIThub puis automatiquement par Render :
+
+taper dans la fenêtre de commande :
+
+git add .
+
+git commit -m "(texte info sur la modif apportée)"
+
+git push -u origin master:main
