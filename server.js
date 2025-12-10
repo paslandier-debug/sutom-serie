@@ -176,7 +176,7 @@ app.post('/api/verifier', (req, res) => {
         gagne = true;
     }
 
-    const resultat = verifierProposition(propositionNormalisee, motCible);
+    const resultat = verifierMot(propositionNormalisee, motCible);
 
     // 4. Renvoie le résultat de la vérification Sutom
     res.json({ resultat, gagne });
