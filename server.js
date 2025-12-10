@@ -6,7 +6,7 @@ const cors = require('cors');
 const fs = require('fs'); // Si vous utilisez fs pour lire un fichier
 const path = require('path'); // <-- AJOUTEZ CETTE LIGNE
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Middleware pour analyser le corps des requêtes en JSON
 app.use(express.json());
@@ -172,7 +172,7 @@ app.post('/api/verifier', (req, res) => {
 
 // Démarrer le serveur
 app.listen(port, () => {
-    console.log(`Server Sutom en cours d'exécution sur http://localhost:${port}`);
+    console.log(`Server Sutom en cours d'exécution sur le port ${port}`);
     console.log('Mots du jour (ne pas les révéler au joueur) :');
     console.log(`  6 lettres: ${motsQuotidiens[6]}`);
     console.log(`  7 lettres: ${motsQuotidiens[7]}`);
