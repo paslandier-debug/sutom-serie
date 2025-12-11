@@ -10,6 +10,8 @@ body {
     color: #1a1a1a;
     margin: 0;
     padding: 20px;
+    /* Empêche les débordements horizontaux sur mobile si un élément est trop large */
+    overflow-x: hidden; 
 }
 
 h1 {
@@ -21,8 +23,11 @@ h1 {
 .controls {
     margin: 20px 0;
     display: flex;
+    flex-wrap: wrap; /* Permet aux éléments de passer à la ligne sur mobile si nécessaire */
     gap: 10px;
     align-items: center;
+    justify-content: center; /* Centre les contrôles */
+    max-width: 95vw;
 }
 
 #longueur-select,
@@ -45,35 +50,36 @@ button:hover {
     background-color: #5a7ec3;
 }
 
-/* --- Grille du Jeu --- */
+/* --- Grille du Jeu (Correction Mobile) --- */
 .grille {
     display: flex;
     flex-direction: column;
     gap: 5px;
     margin: 20px 0;
     
-    /* AJOUT CRUCIAL pour mobile : Limite la largeur du conteneur de la grille */
-    max-width: 90vw; 
+    /* FIX MOBILE: Contraint la grille à la largeur de la vue */
+    width: 95vw; 
+    /* Contraint la largeur pour les écrans plus larges que le mobile */
+    max-width: 400px; 
 }
 
 .ligne {
     display: flex;
     gap: 5px;
-    /* AJOUT CRUCIAL pour mobile : La ligne doit s'adapter */
-    width: 100%; 
+    width: 100%;
 }
 
 .case {
-    /* Suppression des largeurs fixes */
-    width: 100%;
-    /* Utiliser 'flex-grow' pour que toutes les cases d'une ligne se partagent l'espace également */
+    /* FIX MOBILE: 
+       - flex-grow: 1 pour partager l'espace.
+       - aspect-ratio: 1 / 1 pour garantir un carré, quelle que soit la taille de l'écran. 
+    */
     flex-grow: 1; 
-    
-    /* Assure que la hauteur est égale à la largeur pour faire un carré */
     aspect-ratio: 1 / 1; 
     
-    /* Le reste de vos styles... */
-    font-size: 20px; 
+    /* Style visuel */
+    /* clamp(taille_min, taille_flexible, taille_max) */
+    font-size: clamp(14px, 4vw, 24px); 
     font-weight: bold;
     color: white;
     background-color: #3e5e9b;
@@ -87,183 +93,131 @@ button:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Styles pour les cases après vérification (statuts Sutom) */
-.bien_place {
-    background-color: #6aaa64 !important; /* Vert */
-    border-color: #6aaa64 !important;
-    color: white;
+.ligne-active .case.active-saisie {
+    border: 2px solid #5a7ec3;
 }
 
-.mal_place {
-    background-color: #c9b458 !important; /* Jaune */
-    border-color: #c9b458 !important;
+/* --- Styles de Statut de Casse --- */
+.premiere_lettre {
+    background-color: #3e5e9b !important; /* Couleur de base */
     color: white;
+    border: none;
 }
 
 .absente {
-    background-color: #787c7e !important; /* Gris foncé */
-    border-color: #787c7e !important;
-    color: white;
+    background-color: #a0a0a0; /* Gris */
+    animation: flip-out 0.5s forwards;
 }
 
-/* Style spécifique de la première lettre */
-.premiere_lettre {
-    background-color: #3e5e9b; /* Bleu plus foncé */
-    border-color: #3e5e9b;
-    color: white;
+.mal_place {
+    background-color: #ffd700; /* Jaune */
+    animation: flip-out 0.5s forwards;
 }
 
-/* Style de la ligne en cours (input non encore soumis) */
-.case.active {
-    border-color: #1a1a1a;
+.bien_place {
+    background-color: #6aaa64; /* Vert */
+    animation: flip-out 0.5s forwards;
 }
 
-.case.active-saisie {
-    border-color: #3e5e9b; /* Bordure bleue pour les lettres en cours de saisie */
-    color: #1a1a1a;
+/* --- Animations --- */
+@keyframes flip-out {
+    0% { transform: scaleY(1); }
+    50% { transform: scaleY(0); }
+    100% { transform: scaleY(1); }
 }
 
-.ligne-active .case {
-    border-color: #aaa; /* Afficher la bordure plus claire pour la ligne en cours */
-}
-
-/* --- Formulaire et Messages --- */
-#sutom-form {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-}
-
-#proposition-input {
-    padding: 10px;
-    font-size: 18px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-#message {
-    margin-top: 20px;
-    font-size: 1.2em;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-#info {
-    font-size: 1.1em;
-    font-style: italic;
-    color: #555;
-}
-
-/* --- Ajustement pour les petits écrans --- */
-@media (max-width: 600px) {
-    .case {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-    }
-    #longueur-select, button, #proposition-input {
-        font-size: 14px;
-        padding: 8px 10px;
-    }
-}
-
-/* style.css (Ajouter après les styles de la grille) */
-
-/* --- Clavier Virtuel --- */
+/* --- Clavier Virtuel (Ajustement Mobile) --- */
 #clavier-container {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     
-    /* AJOUT CRUCIAL pour mobile : Limiter le clavier à la largeur du conteneur principal */
+    /* FIX MOBILE: Utiliser la même logique de largeur que la grille pour l'alignement */
     width: 95vw; 
-    max-width: 600px; /* Conserver la max-width pour les grands écrans */
+    max-width: 600px; 
 }
 
 .clavier-ligne {
     display: flex;
     justify-content: center;
-    gap: 6px;
-    
-    /* AJOUT CRUCIAL : Assurez-vous que la ligne ne déborde pas */
-    width: 100%; 
+    gap: 5px;
+    width: 100%;
 }
 
 .clavier-touche {
     flex-grow: 1; 
-    height: 50px; /* Hauteur fixe pour une meilleure cliquabilité */
+    height: 45px; /* Hauteur ajustée pour le mobile */
     padding: 0 5px; 
     font-size: 14px; 
+    font-weight: bold;
+    color: #1a1a1a;
+    background-color: #d3d6da;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-transform: uppercase;
-    /* ... le reste de vos styles ... */
-}
-
-/* Ajustement des touches spéciales pour le mobile */
-.touche-speciale {
-    flex-grow: 1.5; 
-    font-size: 12px;
+    min-width: 25px; 
+    transition: background-color 0.2s;
 }
 
 .clavier-touche:hover {
     background-color: #c5c8cc;
 }
 
-/* Style général pour toutes les touches spéciales (Entrée et ⌫) */
 .touche-speciale {
     flex-grow: 1.5; 
-    font-size: 14px;
-    /* Ajustement de la taille pour l'icône */
-    padding: 10px 0; 
+    font-size: 12px;
 }
 
-/* Si vous trouvez que le symbole ⌫ est trop petit, vous pouvez essayer ceci : */
-.clavier-ligne:last-child .clavier-touche:last-child {
-    font-size: 20px; /* Augmenter la taille uniquement pour le dernier élément de la dernière ligne */
-}
-
-/* Styles pour les touches du clavier en fonction des statuts Sutom */
-.clavier-touche.bien_place {
-    background-color: #6aaa64; 
-    color: white;
-}
-.clavier-touche.mal_place {
-    background-color: #c9b458;
-    color: white;
-}
+/* Mise à jour du style des touches du clavier en fonction du statut */
 .clavier-touche.absente {
-    background-color: #787c7e;
+    background-color: #a0a0a0;
     color: white;
 }
 
-/* NOUVELLE RÈGLE pour désactiver visuellement le clavier */
-#clavier-container.jeu-termine .clavier-touche {
-    opacity: 0.6;
-    cursor: default;
-    pointer-events: none; /* Empêche les clics même si le bouton est désactivé */
+.clavier-touche.mal_place {
+    background-color: #ffd700;
+    color: #1a1a1a;
 }
 
+.clavier-touche.bien_place {
+    background-color: #6aaa64;
+    color: white;
+}
 
-/* --- Modale Historique --- */
+.clavier-touche:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.clavier-container.jeu-termine .clavier-touche {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* --- Historique Modale (Pour le bouton Historique) --- */
+
 .modale {
     position: fixed; 
-    z-index: 100; /* Assure que la modale est au-dessus de tout */
+    z-index: 100; 
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto; 
-    background-color: rgba(0,0,0,0.4); /* Fond semi-transparent noir */
+    background-color: rgba(0,0,0,0.4); 
 }
 
 .modale-contenu {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% du haut et centré */
+    margin: 15% auto; 
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* Pourcentage de la largeur */
+    width: 80%; 
     max-width: 600px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -275,48 +229,37 @@ button:hover {
     float: right;
     font-size: 28px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .fermer:hover,
 .fermer:focus {
     color: #000;
-    text-decoration: none;
-    cursor: pointer;
 }
 
 #historique-liste {
     margin-top: 15px;
-    max-height: 300px;
-    overflow-y: auto;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .partie-item {
     padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 4px;
+    border-radius: 5px;
     border-left: 5px solid;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 14px;
 }
 
-.victoire {
-    background-color: #e6ffe6;
-    border-left-color: #6aaa64; /* Vert */
+.partie-item.victoire {
+    border-left-color: #6aaa64; 
+    background-color: #e6f7e6;
 }
 
-.defaite {
-    background-color: #ffe6e6;
-    border-left-color: #d84343; /* Rouge */
-}
-
-.effacer-historique-btn {
-    margin-top: 20px;
-    background-color: #d84343;
-}
-
-.effacer-historique-btn:hover {
-    background-color: #ff5252;
+.partie-item.defaite {
+    border-left-color: #a0a0a0; 
+    background-color: #f0f0f0;
 }
