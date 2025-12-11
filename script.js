@@ -12,6 +12,11 @@ let jeuTermine = false;
 // Nouveau : Stocke l'état des lettres sur le clavier
 let etatClavier = {}; 
 
+// --- NOUVELLES CONSTANTES DE STOCKAGE (avec prefixes) ---
+const KEY_ETAT_JEU_PREFIX = 'sutom_etat_jeu_'; 
+const KEY_MOT_DU_JOUR_PREFIX = 'sutom_mot_du_jour_'; 
+const KEY_HISTORIQUE = 'sutom_historique'; 
+
 // Définition du clavier QWERTY standard (pour la francophonie)
 const CLAVIER_LAYOUT = [
     ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -19,13 +24,144 @@ const CLAVIER_LAYOUT = [
     ['ENTRÉE', 'W', 'X', 'C', 'V', 'B', 'N', '-', '⌫']
 ];
 
-// --- NOUVELLES FONCTIONS CLAVIER ---
+// ===============================================
+// ======== FONCTIONS UTILITAIRES
+// ===============================================
 
-// Fonction pour générer le clavier virtuel
+// Retourne la date du jour au format AAAA-MM-JJ (pour la comparaison)
+function getDateDuJour() {
+    const d = new Date();
+    // Utiliser le fuseau horaire local (ajusté pour la compatibilité FR/CA pour le format YYYY-MM-DD)
+    return d.toLocaleDateString('fr-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+}
+
+// Fonction utilitaire pour obtenir la clé de stockage spécifique à la longueur
+function getEtatJeuKey(longueur) {
+    return KEY_ETAT_JEU_PREFIX + longueur;
+}
+
+function getMotDuJourKey(longueur) {
+    return KEY_MOT_DU_JOUR_PREFIX + longueur;
+}
+
+// ===============================================
+// ======== FONCTIONS DE SAUVEGARDE ET CHARGEMENT
+// ===============================================
+
+function sauvegarderEtatJeu() {
+    if (motCibleLongueur === 0) return;
+
+    const etat = {
+        motCibleLongueur: motCibleLongueur,
+        premiereLettre: premiereLettre,
+        essaisCourants: essaisCourants,
+        ligneActuelleIndex: ligneActuelleIndex,
+        jeuTermine: jeuTermine,
+        etatClavier: etatClavier
+    };
+    // Utilise la clé spécifique à la longueur actuelle
+    localStorage.setItem(getEtatJeuKey(motCibleLongueur), JSON.stringify(etat));
+}
+
+function effacerEtatJeu() {
+    if (motCibleLongueur === 0) return;
+    // Utilise la clé spécifique à la longueur actuelle
+    localStorage.removeItem(getEtatJeuKey(motCibleLongueur));
+}
+
+function sauvegarderHistorique(gagne) {
+    const historiqueRaw = localStorage.getItem(KEY_HISTORIQUE) || '[]';
+    const historique = JSON.parse(historiqueRaw);
+    
+    const partieTerminee = {
+        date: new Date().toISOString(),
+        motCibleLongueur: motCibleLongueur,
+        premiereLettre: premiereLettre,
+        essais: essaisCourants, 
+        victoire: gagne
+    };
+    
+    historique.push(partieTerminee);
+    localStorage.setItem(KEY_HISTORIQUE, JSON.stringify(historique));
+}
+
+// ===============================================
+// ======== FONCTIONS DE GESTION DE L'HISTORIQUE
+// ===============================================
+
+function afficherHistorique() {
+    const historiqueRaw = localStorage.getItem(KEY_HISTORIQUE) || '[]';
+    const historique = JSON.parse(historiqueRaw);
+    const listeDiv = document.getElementById('historique-liste');
+    
+    // Vérification essentielle car l'élément n'est pas dans le HTML fourni
+    if (!listeDiv) {
+        console.error("Erreur: L'élément 'historique-liste' est introuvable. Veuillez mettre à jour votre index.html.");
+        return;
+    }
+    
+    listeDiv.innerHTML = '';
+    
+    if (historique.length === 0) {
+        listeDiv.innerHTML = '<p>Aucune partie terminée enregistrée dans l\'historique.</p>';
+    } else {
+        // Afficher les parties du plus récent au plus ancien
+        historique.reverse().forEach((partie, index) => {
+            const item = document.createElement('div');
+            
+            const classeStatut = partie.victoire ? 'victoire' : 'defaite';
+            const statutTexte = partie.victoire ? 'VICTOIRE' : 'DÉFAITE';
+            const tentatives = partie.essais.length;
+            const date = new Date(partie.date).toLocaleDateString('fr-FR');
+            
+            item.className = `partie-item ${classeStatut}`;
+            item.innerHTML = `
+                <div>
+                    <strong>${statutTexte}</strong> (${partie.motCibleLongueur} lettres)
+                </div>
+                <div>
+                    ${tentatives} essai(s) - ${date}
+                </div>
+            `;
+            listeDiv.appendChild(item);
+        });
+    }
+
+    const modale = document.getElementById('historique-modale');
+    if (modale) {
+        modale.style.display = 'block';
+    } else {
+         console.error("Erreur: L'élément 'historique-modale' est introuvable. Veuillez mettre à jour votre index.html.");
+    }
+}
+
+function fermerHistorique() {
+    const modale = document.getElementById('historique-modale');
+    if(modale) modale.style.display = 'none';
+}
+
+function effacerToutHistorique() {
+    if (confirm("Êtes-vous sûr de vouloir effacer tout votre historique de jeu ? Cette action est irréversible.")) {
+        localStorage.removeItem(KEY_HISTORIQUE);
+        afficherHistorique(); 
+    }
+}
+
+window.onclick = function(event) {
+    const modale = document.getElementById('historique-modale');
+    if (modale && event.target === modale) {
+        fermerHistorique();
+    }
+}
+
+// ===============================================
+// ======== FONCTIONS CLAVIER
+// ===============================================
+
 function creerClavier() {
     const container = document.getElementById('clavier-container');
     container.innerHTML = '';
-    etatClavier = {}; // Réinitialiser l'état des lettres
+    etatClavier = {}; 
 
     CLAVIER_LAYOUT.forEach(ligneTouches => {
         const ligneDiv = document.createElement('div');
@@ -36,10 +172,9 @@ function creerClavier() {
             touche.className = 'clavier-touche';
             touche.textContent = lettre;
             
-            // Attacher l'écouteur d'événement
             touche.addEventListener('click', () => gererToucheClavier(lettre));
 
-            if (lettre === 'ENTRÉE' || lettre === 'EFFACER') {
+            if (lettre === 'ENTRÉE' || lettre === '⌫') { 
                 touche.classList.add('touche-speciale');
             }
 
@@ -49,149 +184,82 @@ function creerClavier() {
     });
 }
 
-// Fonction pour mettre à jour l'état du clavier après un essai
 function mettreAJourClavier(resultatVerification) {
     resultatVerification.forEach(res => {
         const lettre = res.lettre;
         const statut = res.statut;
         
-        // La première lettre (bien placée) est toujours spéciale et ne doit pas être grisées
         if (lettre === premiereLettre && statut !== 'bien_place') {
-            // Dans le vrai Sutom, la première lettre est toujours considérée comme 'bien_place'
-            // si elle est proposée correctement. On laisse le statut 'bien_place' prévaloir
             return;
         }
 
-        // Si le statut actuel est 'bien_place', il prévaut
-        if (etatClavier[lettre] === 'bien_place') {
-            return;
-        }
-        // Si le statut actuel est 'mal_place', le nouveau statut 'bien_place' prévaut
-        if (etatClavier[lettre] === 'mal_place' && statut === 'bien_place') {
-             etatClavier[lettre] = statut;
-             return;
-        }
-        // Si le statut est 'absente', il ne peut pas être remplacé par 'mal_place' ou 'bien_place'
-        if (etatClavier[lettre] === 'absente' && (statut === 'mal_place' || statut === 'bien_place')) {
-            // Le nouveau statut est plus informatif
-             etatClavier[lettre] = statut;
-             return;
-        }
-        // Si la lettre n'a pas encore de statut ou si le nouveau statut est plus pertinent
-        if (!etatClavier[lettre] || statut === 'bien_place' || (statut === 'mal_place' && etatClavier[lettre] !== 'absente')) {
+        const statutActuel = etatClavier[lettre];
+
+        if (statut === 'bien_place') {
             etatClavier[lettre] = statut;
+        } else if (statut === 'mal_place' && statutActuel !== 'bien_place') {
+            etatClavier[lettre] = statut;
+        } else if (statut === 'absente' && statutActuel === undefined) {
+             etatClavier[lettre] = statut;
         }
     });
 
-    // Appliquer les classes CSS aux touches
     document.querySelectorAll('.clavier-touche').forEach(touche => {
         const lettre = touche.textContent;
         if (etatClavier[lettre]) {
-            // Retirer les anciennes classes de statut
             touche.classList.remove('bien_place', 'mal_place', 'absente');
-            // Ajouter la nouvelle classe de statut
             touche.classList.add(etatClavier[lettre]);
         }
     });
 }
 
-//=========================================
-// script.js
-
-// Fonction pour gérer les clics sur le clavier virtuel
-// script.js (Fonction pour gérer les clics sur le clavier virtuel)
-
 function gererToucheClavier(touche) {
     const input = document.getElementById('proposition-input');
-    // NOTE : On utilise la valeur de l'input, mais on sait que la première lettre
-    // sera ajoutée plus tard par le script.
     const valeurActuelleSansPremiere = input.value.toUpperCase(); 
     let nouvellePropositionSansPremiere = valeurActuelleSansPremiere;
 
     if (jeuTermine) return;
 
     if (touche === 'ENTRÉE') {
-        // La soumission sera gérée plus tard dans gererSoumission
         document.getElementById('sutom-form').dispatchEvent(new Event('submit'));
         return; 
         
     } else if (touche === '⌫') {
-        // Effacer le dernier caractère
         nouvellePropositionSansPremiere = valeurActuelleSansPremiere.slice(0, -1);
         
     } else if (touche.length === 1 && valeurActuelleSansPremiere.length < (motCibleLongueur - 1)) { 
-        // L'input caché ne doit contenir que (longueur - 1) caractères
         nouvellePropositionSansPremiere = valeurActuelleSansPremiere + touche;
         
     } else {
         return;
     }
     
-    // 1. Mettre à jour la valeur de l'input réel (pour suivre l'état interne)
     input.value = nouvellePropositionSansPremiere;
-    
-    // 2. Mettre à jour l'affichage de la grille en temps réel
-    // On ajoute la première lettre pour l'affichage uniquement :
     mettreAJourAffichageSaisie(premiereLettre + nouvellePropositionSansPremiere); 
     
-    // Réinitialiser le message d'erreur
     if (touche.length === 1) {
         document.getElementById('message').textContent = '';
     }
 }
-//=========================================
-// 
-// Fonction pour gérer les clics sur le clavier virtuel
-//xxx function gererToucheClavier(touche) {
-//xxx    const input = document.getElementById('proposition-input');
-//xxx    const valeurActuelle = input.value.toUpperCase();
 
-//xxx    if (jeuTermine) return;
+// ===============================================
+// ======== FONCTIONS D'INTERFACE UTILISATEUR
+// ===============================================
 
-//xxx    if (touche === 'ENTRÉE') {
-        // Simuler la soumission du formulaire
-//xxx        document.getElementById('sutom-form').dispatchEvent(new Event('submit'));
-//xxx    } else if (touche === 'EFFACER') {
-        // Effacer le dernier caractère
-//xxx        input.value = valeurActuelle.slice(0, -1);
-//xxx    } else if (touche.length === 1 && valeurActuelle.length < motCibleLongueur) {
-//xxx        // Ajouter la lettre, mais seulement si la première lettre est respectée
-//xxx        const nouvelleProposition = valeurActuelle + touche;
-//xxx        
-//xxx        if (nouvelleProposition.length === 1 && nouvelleProposition !== premiereLettre) {
-//xxx            document.getElementById('message').textContent = `Le mot doit commencer par la lettre '${premiereLettre}'.`;
-//xxx            return; 
-//xxx        }
-//xxx
-//xxx        // Ajouter la lettre à l'input
-//xxx        input.value = nouvelleProposition;
-//xxx        document.getElementById('message').textContent = ''; // Effacer le message d'erreur
-//xxx    }
-//xxx}
-
-// --- Fonctions de l'Interface Utilisateur ---
-
-// 1. Initialiser la grille HTML
 function creerGrille(longueur) {
     const container = document.getElementById('grille-container');
     container.innerHTML = '';
     
-    // Créer la grille de 6 essais
     for (let i = 0; i < MAX_ESSAIS; i++) {
         const ligne = document.createElement('div');
         ligne.className = 'ligne';
         ligne.id = `ligne-${i}`;
-        // PL ajout 10/12 16:51
-        if (i === 0) {
-            ligne.classList.add('ligne-active'); // Marque la première ligne
-        }
-
+        
         for (let j = 0; j < longueur; j++) {
             const caseDiv = document.createElement('div');
             caseDiv.className = 'case';
             caseDiv.id = `case-${i}-${j}`;
             
-            // Afficher la première lettre sur la première case de chaque ligne
             if (j === 0) {
                 caseDiv.classList.add('premiere_lettre');
                 caseDiv.textContent = premiereLettre;
@@ -205,11 +273,115 @@ function creerGrille(longueur) {
     }
 }
 
-// 2. Afficher la proposition du joueur dans la grille
+function mettreAJourLigneActive() {
+    // Retirer 'ligne-active' partout
+    document.querySelectorAll('.ligne').forEach(l => l.classList.remove('ligne-active'));
+    
+    // Mettre à jour la ligne active
+    const prochaineLigne = document.getElementById(`ligne-${ligneActuelleIndex}`);
+    if (prochaineLigne && !jeuTermine) {
+        prochaineLigne.classList.add('ligne-active');
+    }
+    
+    // --- GESTION DE L'ÉTAT D'ACTIVATION DES INPUTS/CLAVIER ---
+    const input = document.getElementById('proposition-input');
+    const submitButton = document.getElementById('sutom-form').querySelector('button[type="submit"]');
+
+    if (input && submitButton) {
+        // Désactiver l'input et le bouton si le jeu est terminé
+        input.disabled = jeuTermine;
+        submitButton.disabled = jeuTermine;
+        // Vider l'input si le jeu est terminé
+        if (jeuTermine) input.value = '';
+    }
+    
+    // Désactiver/Activer visuellement le clavier (voir style.css)
+    const clavier = document.getElementById('clavier-container');
+    if (clavier) {
+        clavier.classList.toggle('jeu-termine', jeuTermine);
+    }
+}
+
+// Affiche un essai existant (pour la reprise ou la partie terminée)
+function afficherEssaiRepris(resultatVerification, indexLigne) {
+    const ligne = document.getElementById(`ligne-${indexLigne}`);
+    if (!ligne) return;
+
+    ligne.classList.remove('ligne-active');
+
+    resultatVerification.forEach((res, index) => {
+        const caseDiv = ligne.querySelector(`#case-${indexLigne}-${index}`);
+        if (caseDiv) {
+            caseDiv.textContent = res.lettre;
+            caseDiv.classList.add(res.statut);
+            
+            if (index === 0) {
+                 caseDiv.classList.remove('absente', 'mal_place'); 
+                 caseDiv.classList.add('premiere_lettre');
+            }
+        }
+    });
+}
+
+// Affiche la grille d'une partie terminée trouvée dans l'historique
+function afficherGrilleTerminee(longueur, date, premiereLettreCible) {
+    const historiqueRaw = localStorage.getItem(KEY_HISTORIQUE) || '[]';
+    const historique = JSON.parse(historiqueRaw);
+    
+    // Convertir la date de l'historique en AAAA-MM-JJ pour la comparaison
+    const dateFormatee = date; 
+
+    // Trouver la partie correspondante 
+    const partieTrouvee = historique.find(p => 
+        p.motCibleLongueur === longueur && 
+        p.premiereLettre === premiereLettreCible &&
+        new Date(p.date).toLocaleDateString('fr-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-') === dateFormatee
+    );
+
+    if (partieTrouvee) {
+        // Réinitialisation des variables locales pour l'affichage
+        motCibleLongueur = partieTrouvee.motCibleLongueur;
+        premiereLettre = partieTrouvee.premiereLettre;
+        jeuTermine = true; // Marquer le jeu comme terminé
+        
+        // 1. Créer la grille et réinitialiser le clavier
+        creerGrille(motCibleLongueur);
+        creerClavier(); // Réinitialise l'étatClavier
+        
+        const tousLesResultats = [];
+        
+        // 2. Afficher chaque essai de la partie terminée
+        partieTrouvee.essais.forEach((resultat, indexLigne) => {
+            afficherEssaiRepris(resultat, indexLigne);
+            tousLesResultats.push(...resultat);
+        });
+        
+        // 3. Mettre à jour le clavier avec les statuts finaux
+        mettreAJourClavier(tousLesResultats);
+
+        // 4. Afficher le message final
+        let message = `Le mot de ${longueur} lettres du jour est déjà terminé.`;
+        if (partieTrouvee.victoire) {
+             message += " (VICTOIRE)";
+        } else {
+             message += " (DÉFAITE)";
+        }
+        document.getElementById('message').textContent = message;
+        
+    } else {
+        // Cas d'erreur : le mot est marqué comme terminé, mais on ne trouve pas les essais dans l'historique
+        creerGrille(longueur); 
+        document.getElementById('message').textContent = `Le mot d'aujourd'hui est terminé, mais l'historique des essais n'est pas disponible.`;
+    }
+
+    // Le disabling se fait ici
+    mettreAJourLigneActive(); 
+}
+
+
 async function afficherResultat(resultatVerification, gagne) {
     const ligne = document.getElementById(`ligne-${ligneActuelleIndex}`);
 
-    // Retirer le statut "active" de la ligne actuelle
     if (ligne) {
         ligne.classList.remove('ligne-active');
     }
@@ -224,19 +396,12 @@ async function afficherResultat(resultatVerification, gagne) {
              caseDiv.classList.add('premiere_lettre');
         }
     });
-    //xxx ligneActuelleIndex++;
-    // 1. Mettre à jour le clavier après l'affichage de la ligne
+    
     mettreAJourClavier(resultatVerification); 
 
     ligneActuelleIndex++;
     
-    // PL ajout 10/12 16:51
-    const prochaineLigne = document.getElementById(`ligne-${ligneActuelleIndex}`);
-    if (prochaineLigne) {
-        prochaineLigne.classList.add('ligne-active');
-    }
-
-    // 2. Vérification de la victoire/défaite (déplacée ici pour utiliser 'gagne')
+    // Vérification de la victoire/défaite 
     if (gagne) {
         document.getElementById('message').textContent = 'Félicitations ! Vous avez trouvé le mot !';
         jeuTermine = true;
@@ -246,15 +411,14 @@ async function afficherResultat(resultatVerification, gagne) {
     } else {
         document.getElementById('message').textContent = '';
     }
+    
+    mettreAJourLigneActive(); 
 }
-
-// Affichage des lettres dans la grille au fur et à mesure
 
 function mettreAJourAffichageSaisie(proposition) {
     const ligne = document.getElementById(`ligne-${ligneActuelleIndex}`);
-    if (!ligne) return; // Si l'index de ligne est hors limites
+    if (!ligne) return; 
 
-    // On parcourt toutes les cases de la ligne actuelle
     for (let i = 0; i < motCibleLongueur; i++) {
         const caseDiv = ligne.querySelector(`#case-${ligneActuelleIndex}-${i}`);
         
@@ -262,11 +426,9 @@ function mettreAJourAffichageSaisie(proposition) {
         
         let lettre = proposition[i] ? proposition[i].toUpperCase() : '';
 
-        // La première case est fixe et ne doit pas être écrasée
         if (i === 0) {
             caseDiv.textContent = premiereLettre;
         } else {
-            // Afficher la lettre ou laisser vide
             caseDiv.textContent = lettre;
         }
 
@@ -279,52 +441,142 @@ function mettreAJourAffichageSaisie(proposition) {
     }
 }
 
-// 3. Charger les données du mot cible depuis le serveur
+// ===============================================
+// ======== LOGIQUE DE CHARGEMENT DU MOT
+// ===============================================
+
 async function chargerMotCible(longueur) {
-    try {
-        const response = await fetch(`${SERVER_URL}/mot-cible/${longueur}`);
-        if (!response.ok) {
-            throw new Error('Erreur de chargement du mot cible.');
-        }
-        const data = await response.json();
-        motCibleLongueur = data.longueur;
-        premiereLettre = data.premiereLettre.toUpperCase();
+    // La longueur doit être valide (>= 4)
+    if (longueur < 4) return;
+
+    const dateJour = getDateDuJour();
+    const motDuJourKey = getMotDuJourKey(longueur);
+    const motDuJourSauvegarde = localStorage.getItem(motDuJourKey);
+    
+    // 1. VÉRIFICATION DU MOT DU JOUR TERMINÉ
+    if (motDuJourSauvegarde) {
+        const motSauvegarde = JSON.parse(motDuJourSauvegarde);
         
-        // Mettre à jour l'info affichée
+        if (motSauvegarde.date === dateJour && motSauvegarde.termine) {
+            
+            // SI TERMINÉE, ON RÉAFFICHE IMMÉDIATEMENT L'HISTORIQUE ET ON BLOQUE
+            motCibleLongueur = motSauvegarde.longueur;
+            premiereLettre = motSauvegarde.premiereLettre;
+
+            document.getElementById('info').textContent = `Mot de ${longueur} lettres. Commence par : ${motSauvegarde.premiereLettre}.`;
+            
+            // Reconstruit la grille, affiche les essais de l'historique et bloque le jeu.
+            afficherGrilleTerminee(longueur, dateJour, motSauvegarde.premiereLettre);
+            
+            return; 
+        }
+    }
+    
+    // 2. TENTATIVE DE CHARGEMENT D'UNE PARTIE EN COURS (KEY_ETAT_JEU_X)
+    const etatSauvegarde = localStorage.getItem(getEtatJeuKey(longueur));
+
+    if (etatSauvegarde) {
+        // Si on a un état sauvegardé pour cette longueur (partie en cours), on le charge.
+        const etat = JSON.parse(etatSauvegarde);
+        
+        motCibleLongueur = etat.motCibleLongueur;
+        premiereLettre = etat.premiereLettre;
+        essaisCourants = etat.essaisCourants;
+        ligneActuelleIndex = etat.ligneActuelleIndex;
+        jeuTermine = etat.jeuTermine;
+        etatClavier = etat.etatClavier || {}; 
+        
+        document.getElementById('longueur-select').value = String(motCibleLongueur);
         document.getElementById('info').textContent = `Mot de ${motCibleLongueur} lettres. Commence par : ${premiereLettre}.`;
         
         creerGrille(motCibleLongueur);
+        essaisCourants.forEach((resultat, index) => {
+            afficherEssaiRepris(resultat, index); 
+        });
+        
+        const tousLesResultats = essaisCourants.reduce((acc, current) => acc.concat(current), []);
+        mettreAJourClavier(tousLesResultats); 
+        mettreAJourLigneActive();
+
+        document.getElementById('message').textContent = 'Partie en cours (chargée).';
+
+        return; // Reprise réussie
+    }
+
+
+    // 3. CHARGEMENT D'UN NOUVEAU MOT VIA API
+    
+    // Réinitialisation complète des variables locales pour la NOUVELLE partie
+    essaisCourants = [];
+    ligneActuelleIndex = 0;
+    jeuTermine = false;
+    etatClavier = {}; 
+    
+    try {
+        const response = await fetch(`${SERVER_URL}/mot-cible/${longueur}`);
+        if (!response.ok) {
+            
+            // Afficher une erreur si le serveur ne renvoie pas 200 OK
+            let errorMsg = 'Erreur de chargement du mot cible (Vérifiez le terminal du serveur).';
+            try {
+                const errorData = await response.json();
+                errorMsg = errorData.message || errorMsg;
+            } catch (e) {
+                // Si la réponse n'est pas un JSON, on garde l'erreur par défaut.
+            }
+
+            document.getElementById('message').textContent = errorMsg;
+            throw new Error(errorMsg);
+        }
+        const data = await response.json();
+        
+        motCibleLongueur = data.longueur;
+        premiereLettre = data.premiereLettre.toUpperCase();
+        
+        document.getElementById('info').textContent = `Mot de ${motCibleLongueur} lettres. Commence par : ${premiereLettre}.`;
+        
+        creerGrille(motCibleLongueur);
+        creerClavier(); // pour s'assurer que l'étatClavier est vide
+        
+        // Enregistrer le mot du jour (non terminé) pour cette longueur
+        const nouveauMotDuJour = {
+            date: dateJour,
+            longueur: motCibleLongueur,
+            termine: false, 
+            premiereLettre: premiereLettre 
+        };
+        localStorage.setItem(motDuJourKey, JSON.stringify(nouveauMotDuJour));
+        
+        sauvegarderEtatJeu(); // utilise la nouvelle clé
+        mettreAJourLigneActive();
         
     } catch (error) {
         console.error('Erreur:', error);
-        document.getElementById('message').textContent = 'Erreur de connexion au serveur ou de chargement du mot du jour.';
+        // Si la grille n'apparaît pas ici, c'est que l'appel API a échoué.
+        if (document.getElementById('message').textContent === '') {
+             document.getElementById('message').textContent = 'Erreur lors du chargement du jeu (problème de serveur/réseau).';
+        }
     }
 }
 
-// 4. Initialiser un nouveau jeu
+// Fonction appelée par le bouton "Nouveau Mot du Jour" et le sélecteur
 function chargerNouveauJeu() {
     const select = document.getElementById('longueur-select');
     const longueur = parseInt(select.value, 10);
     
-    motCibleLongueur = 0;
-    premiereLettre = '';
-    ligneActuelleIndex = 0;
-    jeuTermine = false;
-    etatClavier = {}; // Réinitialiser le clavier
-
+    // On s'appuie entièrement sur chargerMotCible pour vérifier l'état et charger.
+    
     document.getElementById('message').textContent = '';
     document.getElementById('proposition-input').value = '';
-
-    creerClavier(); // <-- Créer le clavier
+    
+    creerClavier(); 
     chargerMotCible(longueur);
 }
 
 
-// --- Logique du Jeu et Soumission ---
-
-// script.js (Fonction pour gérer la soumission du formulaire)
-
-// script.js (Fonction gererSoumission)
+// ===============================================
+// ======== LOGIQUE DU JEU ET SOUMISSION
+// ===============================================
 
 async function gererSoumission(event) {
     event.preventDefault();
@@ -337,38 +589,28 @@ async function gererSoumission(event) {
     const input = document.getElementById('proposition-input');
     let propositionSaisie = input.value.toUpperCase().trim();
     
-    // 1. CONSTRUCTION DU MOT COMPLET (avec accents, si présents)
     let propositionAvecAccents = premiereLettre + propositionSaisie;
-
-    // 2. NORMALISATION DU MOT POUR LE SERVEUR
-    // La variable est déclarée ici (dans la portée de la fonction)
-    let propositionNormalisee = propositionAvecAccents;
+    let propositionNormalisee = propositionAvecAccents; 
     
-    // 3. VÉRIFICATION DE LA LONGUEUR
     if (propositionAvecAccents.length !== motCibleLongueur) {
         document.getElementById('message').textContent = `Le mot doit avoir ${motCibleLongueur} lettres.`;
         return;
     }
     
-    // Vider l'input APRES la vérification de longueur
     input.value = ''; 
 
 
     try {
-        // L'appel fetch utilise maintenant 'propositionNormalisee' qui est définie au-dessus.
         const response = await fetch(`${SERVER_URL}/verifier`, {
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ proposition: propositionNormalisee, longueur: motCibleLongueur })
         });
 
-        // ... (suite de la gestion de la réponse) ...
         if (!response.ok) {
             const errorData = await response.json(); 
             document.getElementById('message').textContent = `Erreur: ${errorData.message}`;
             
-            // Si le mot est invalide, on le remet dans la grille.
-            // On utilise la version AVEC ACCENTS pour l'affichage.
             const propositionSaisieRetour = propositionAvecAccents.substring(1); 
             input.value = propositionSaisieRetour;
             mettreAJourAffichageSaisie(propositionAvecAccents); 
@@ -377,12 +619,27 @@ async function gererSoumission(event) {
         }
 
         const data = await response.json();
-        // ...
+        
+        // AJOUT : Sauvegarder l'essai
+        essaisCourants.push(data.resultat); 
                 
-        // Appel de la fonction d'affichage mise à jour
         afficherResultat(data.resultat, data.gagne); 
 
+        sauvegarderEtatJeu(); // SAUVEGARDER L'ÉTAT DU JEU APRÈS LE COMMUT
 
+        if (jeuTermine) {
+            // NOUVEAU : Marquer le mot du jour comme terminé (pour cette longueur)
+            const motDuJourKey = getMotDuJourKey(motCibleLongueur);
+            const motDuJourSauvegarde = JSON.parse(localStorage.getItem(motDuJourKey));
+            
+            if (motDuJourSauvegarde) {
+                motDuJourSauvegarde.termine = true;
+                localStorage.setItem(motDuJourKey, JSON.stringify(motDuJourSauvegarde));
+            }
+            
+            sauvegarderHistorique(data.gagne);
+            effacerEtatJeu(); // utilise la clé spécifique à la longueur
+        }
         
     } catch (error) {
         console.error('Erreur de vérification (réseau):', error);
@@ -390,22 +647,27 @@ async function gererSoumission(event) {
     }
 }
 
-// --- Initialisation ---
+// ===============================================
+// ======== INITIALISATION
+// ===============================================
 
-// Attacher l'écouteur d'événement à la soumission du formulaire
 document.getElementById('sutom-form').addEventListener('submit', gererSoumission);
 
-// Attacher l'écouteur pour la mise à jour en temps réel de l'input (saisie physique)
 document.getElementById('proposition-input').addEventListener('input', (e) => {
-    // Limiter la longueur au mot cible
-    const proposition = e.target.value.toUpperCase().slice(0, motCibleLongueur);
-    e.target.value = proposition; // Assurer que l'input est tronqué
+    const proposition = e.target.value.toUpperCase().slice(0, motCibleLongueur - 1); // -1 car la première lettre est fixe
+    e.target.value = proposition; 
     
-    // Mettre à jour la grille visuellement
-    mettreAJourAffichageSaisie(proposition);
+    mettreAJourAffichageSaisie(premiereLettre + proposition);
 });
 
-// Charger le jeu initial au chargement de la page
 document.addEventListener('DOMContentLoaded', () => {
-    chargerNouveauJeu();
+    // Obtenir la longueur par défaut/sélectionnée.
+    const longueurInitiale = parseInt(document.getElementById('longueur-select').value, 10);
+    
+    // Appeler directement chargerMotCible qui gère la reprise d'état (si existant) ou la partie terminée.
+    // Il gère aussi l'appel à creerClavier.
+    chargerMotCible(longueurInitiale); 
+    
+    // Ajouter l'écouteur pour le changement de longueur
+    document.getElementById('longueur-select').addEventListener('change', chargerNouveauJeu);
 });

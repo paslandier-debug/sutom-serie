@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sutom : la série des copains</title>
     <link rel="stylesheet" href="style.css"> 
 </head>
@@ -18,18 +16,18 @@
             <option value="9">9 lettres</option>
         </select>
         <button onclick="chargerNouveauJeu()">Nouveau Mot du Jour</button>
+        <button onclick="afficherHistorique()">Historique</button> 
     </div>
 
     <div id="info"></div>
     <div id="grille-container" class="grille">
         </div>
-
     <form id="sutom-form">
         <input type="text" id="proposition-input" placeholder="Votre proposition" required minlength="6" maxlength="9" style="opacity: 0; position: absolute; pointer-events: none;">
         <button type="submit">Valider</button>
     </form>
     <div id="message"></div>
-
+    
     <div id="clavier-container">
         </div>
         
