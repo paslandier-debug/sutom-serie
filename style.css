@@ -49,28 +49,42 @@ button:hover {
 .grille {
     display: flex;
     flex-direction: column;
-    gap: 5px; /* Espace entre les lignes */
-    margin-top: 20px;
+    gap: 5px;
+    margin: 20px 0;
+    
+    /* AJOUT CRUCIAL pour mobile : Limite la largeur du conteneur de la grille */
+    max-width: 90vw; 
 }
 
 .ligne {
     display: flex;
-    gap: 5px; /* Espace entre les cases */
+    gap: 5px;
+    /* AJOUT CRUCIAL pour mobile : La ligne doit s'adapter */
+    width: 100%; 
 }
 
 .case {
-    width: 50px;
-    height: 50px;
+    /* Suppression des largeurs fixes */
+    width: 100%;
+    /* Utiliser 'flex-grow' pour que toutes les cases d'une ligne se partagent l'espace également */
+    flex-grow: 1; 
+    
+    /* Assure que la hauteur est égale à la largeur pour faire un carré */
+    aspect-ratio: 1 / 1; 
+    
+    /* Le reste de vos styles... */
+    font-size: 20px; 
+    font-weight: bold;
+    color: white;
+    background-color: #3e5e9b;
+    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
-    font-weight: bold;
-    border: 2px solid #ccc; /* Bordure par défaut */
-    border-radius: 4px;
     text-transform: uppercase;
     user-select: none;
-    transition: background-color 0.5s ease-in-out, transform 0.1s;
+    transition: background-color 0.5s, transform 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Styles pour les cases après vérification (statuts Sutom) */
@@ -159,31 +173,38 @@ button:hover {
 
 /* --- Clavier Virtuel --- */
 #clavier-container {
-    margin-top: 30px;
-    width: 100%;
-    max-width: 600px; /* Limiter la largeur pour une meilleure lisibilité */
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    /* AJOUT CRUCIAL pour mobile : Limiter le clavier à la largeur du conteneur principal */
+    width: 95vw; 
+    max-width: 600px; /* Conserver la max-width pour les grands écrans */
 }
 
 .clavier-ligne {
     display: flex;
     justify-content: center;
     gap: 6px;
-    margin-bottom: 6px;
+    
+    /* AJOUT CRUCIAL : Assurez-vous que la ligne ne déborde pas */
+    width: 100%; 
 }
 
 .clavier-touche {
-    flex-grow: 1; /* Permet aux touches de s'étirer */
-    padding: 12px 0;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #d3d6da; /* Couleur par défaut */
-    color: #1a1a1a;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    flex-grow: 1; 
+    height: 50px; /* Hauteur fixe pour une meilleure cliquabilité */
+    padding: 0 5px; 
+    font-size: 14px; 
     text-transform: uppercase;
-    min-width: 25px; /* Pour les touches spéciales */
-    transition: background-color 0.2s;
+    /* ... le reste de vos styles ... */
+}
+
+/* Ajustement des touches spéciales pour le mobile */
+.touche-speciale {
+    flex-grow: 1.5; 
+    font-size: 12px;
 }
 
 .clavier-touche:hover {
