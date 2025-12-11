@@ -10,7 +10,7 @@ body {
     color: #1a1a1a;
     margin: 0;
     padding: 20px;
-    /* Empêche les débordements horizontaux sur mobile si un élément est trop large */
+    /* Empêche les débordements horizontaux sur mobile */
     overflow-x: hidden; 
 }
 
@@ -19,27 +19,55 @@ h1 {
     margin-bottom: 10px;
 }
 
-/* --- Sélecteur de Longueur --- */
+/* --- Sélecteur de Longueur (OPTIMISÉ MOBILE) --- */
 .controls {
     margin: 20px 0;
     display: flex;
-    flex-wrap: wrap; /* Permet aux éléments de passer à la ligne sur mobile si nécessaire */
+    /* Permet aux groupes (select et boutons) de passer à la ligne */
+    flex-wrap: wrap; 
     gap: 10px;
     align-items: center;
-    justify-content: center; /* Centre les contrôles */
+    justify-content: center; 
     max-width: 95vw;
+    width: 100%; /* Important pour que justify-content: center fonctionne bien */
+}
+
+.longueur-select-group {
+    /* Le groupe de sélection est ajusté à son contenu */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: fit-content;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    /* Permet aux boutons de prendre la largeur restante, 
+       ou 100% de la ligne si le selecteur est au-dessus */
+    flex-grow: 1; 
+    justify-content: center; /* Centre les boutons dans leur conteneur */
+    min-width: 0; /* Important pour le flex-grow sur mobile */
+}
+
+.action-buttons button {
+    /* Permet aux deux boutons de partager équitablement la largeur du conteneur .action-buttons */
+    flex-grow: 1; 
 }
 
 #longueur-select,
-button {
-    padding: 10px 15px;
-    font-size: 16px;
+/* Ciblage spécifique des éléments dans controls */
+.controls button { 
+    padding: 8px 12px;
+    font-size: 14px; 
     border-radius: 5px;
     border: 1px solid #ccc;
     cursor: pointer;
     transition: background-color 0.2s, border-color 0.2s;
+    height: fit-content;
 }
 
+/* Styles généraux des boutons */
 button {
     background-color: #3e5e9b;
     color: white;
@@ -50,7 +78,7 @@ button:hover {
     background-color: #5a7ec3;
 }
 
-/* --- Grille du Jeu (Correction Mobile) --- */
+/* --- Grille du Jeu (OPTIMISÉ MOBILE) --- */
 .grille {
     display: flex;
     flex-direction: column;
@@ -70,38 +98,54 @@ button:hover {
 }
 
 .case {
-    /* FIX MOBILE: 
-       - flex-grow: 1 pour partager l'espace.
-       - aspect-ratio: 1 / 1 pour garantir un carré, quelle que soit la taille de l'écran. 
-    */
+    /* FIX CRUCIAL: flex-grow + aspect-ratio = Carré parfaitement adapté */
     flex-grow: 1; 
     aspect-ratio: 1 / 1; 
     
-    /* Style visuel */
-    /* clamp(taille_min, taille_flexible, taille_max) */
-    font-size: clamp(14px, 4vw, 24px); 
+    /* *************************************** */
+    /* *** MODIFICATION CRUCIALE ICI (Ligne ajoutée) *** */
+    /* Utilisation d'une police MONOSPACE pour que chaque lettre ait la même largeur */
+    font-family: 'Consolas', 'Courier New', monospace; 
+    /* *************************************** */
+    
+    /* Style par défaut pour les cases non validées/vides */
+    /* REMARQUE: J'ai laissé le clamp() car il est très utile pour le responsive */
+    font-size: 24px; /* Fixez-le temporairement à la taille maximale */
     font-weight: bold;
-    color: white;
-    background-color: #3e5e9b;
+    color: #1a1a1a; /* Couleur du texte dans les cases non validées */
+    background-color: #d3d6da; /* Gris clair par défaut */
     border-radius: 5px;
+    
+    /* Ces propriétés assurent le centrage et sont déjà correctes */
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; 
     text-transform: uppercase;
     user-select: none;
     transition: background-color 0.5s, transform 0.3s;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    /* Bordure par défaut pour les cases vides */
+    border: 2px solid #a0a0a0; 
 }
 
+/* Style de la case lorsqu'elle est activement saisie */
 .ligne-active .case.active-saisie {
-    border: 2px solid #5a7ec3;
+    border: 2px solid #3e5e9b; /* Bordure bleue pour l'input actif */
 }
 
-/* --- Styles de Statut de Casse --- */
+/* --- Styles de Statut de Casse (après validation) --- */
+
+/* Appliqué aux cases validées pour retirer la bordure et mettre le texte en blanc */
+.absente, .mal_place, .bien_place {
+    border: none;
+    color: white; 
+}
+
 .premiere_lettre {
     background-color: #3e5e9b !important; /* Couleur de base */
     color: white;
-    border: none;
+    border: none !important;
 }
 
 .absente {
@@ -133,7 +177,7 @@ button:hover {
     flex-direction: column;
     gap: 6px;
     
-    /* FIX MOBILE: Utiliser la même logique de largeur que la grille pour l'alignement */
+    /* Utilise la même logique de largeur que la grille pour l'alignement */
     width: 95vw; 
     max-width: 600px; 
 }
@@ -199,7 +243,7 @@ button:hover {
     opacity: 0.8;
 }
 
-/* --- Historique Modale (Pour le bouton Historique) --- */
+/* --- Historique Modale --- */
 
 .modale {
     position: fixed; 
