@@ -86,6 +86,13 @@ const motsQuotidiens = {
     9: getMotDuJour(9)
 };
 
+// ==========================================================
+// =============== Affichage des mots du dico pour vérif
+// =============== à désactiver avant déploiement !!!!
+// ==========================================================
+console.log(`Exemple de dico : ${DICTIONNAIRE_PAR_LONGUEUR[7]}`);
+
+
 // Logique de vérification de Sutom
 function verifierMot(proposition, motCible) {
     const resultat = [];
