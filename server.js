@@ -1,6 +1,8 @@
 // server.js
 
-
+// =======================================================
+// ========   Constantes 
+// =======================================================
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs'); // Si vous utilisez fs pour lire un fichier
@@ -8,6 +10,9 @@ const path = require('path'); // <-- AJOUTEZ CETTE LIGNE
 const app = express();
 const port = process.env.PORT || 3000;
 
+// =======================================================
+// ========   MiddleWare 
+// =======================================================
 // Middleware pour analyser le corps des requêtes en JSON
 app.use(express.json());
 // Middleware pour permettre les requêtes depuis le frontend (pour le développement)
@@ -17,6 +22,9 @@ app.use(cors());
 // lorsque l'utilisateur accède à la racine du site.
 app.use(express.static(__dirname));
 
+// =======================================================
+// ========   Dictionnaire 
+// =======================================================
 // Utilisation d'un nom de variable plus descriptif pour la structure objet
 let DICTIONNAIRE_PAR_LONGUEUR = {}; 
 
@@ -53,7 +61,9 @@ try {
     process.exit(1);
 }
 
-
+// =======================================================
+// ========   Fonctions 
+// =======================================================
 
 // Fonction pour obtenir les mots pour une longueur donnée
 function getMotsParLongueur(longueur) {
@@ -90,7 +100,7 @@ const motsQuotidiens = {
 // =============== Affichage des mots du dico pour vérif
 // =============== à désactiver avant déploiement !!!!
 // ==========================================================
-console.log(`Exemple de dico : ${DICTIONNAIRE_PAR_LONGUEUR[7]}`);
+// console.log(`Exemple de dico : ${DICTIONNAIRE_PAR_LONGUEUR[7]}`);
 
 
 // Logique de vérification de Sutom
