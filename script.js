@@ -264,7 +264,8 @@ function creerGrille(longueur) {
                 caseDiv.classList.add('premiere_lettre');
                 caseDiv.textContent = premiereLettre;
             } else {
-                caseDiv.textContent = '';
+                // CORRECTION : Utiliser un espace insécable (\u00A0) au lieu d'une chaîne vide.
+                caseDiv.textContent = '\u00A0';
             }
 
             ligne.appendChild(caseDiv);
