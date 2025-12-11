@@ -43,8 +43,8 @@ h1 {
 .action-buttons {
     display: flex;
     gap: 8px;
-    width: 30%; 
-    height: 40px;
+    width: 100%; 
+    height: fit-content;
     /* Permet aux boutons de prendre la largeur restante, 
        ou 100% de la ligne si le selecteur est au-dessus */
     flex-grow: 1; 
@@ -68,7 +68,7 @@ h1 {
     border: 1px solid #ccc;
     cursor: pointer;
     transition: background-color 0.2s, border-color 0.2s;
-    height: 40px;
+    height: fit-content;
 }
 
 /* Styles généraux des boutons */
@@ -89,9 +89,10 @@ button:hover {
     flex-direction: column;
     gap: 5px;
     margin: 20px 0;
-    
+    /* NOUVEAU : Flex Shrink à 1 pour forcer l'ajustement en cas de débordement */
+    flex-shrink: 1;
     /* FIX MOBILE: Contraint la grille à la largeur de la vue */
-    width: 120vw; 
+    width: 95vw; 
     /* Contraint la largeur pour les écrans plus larges que le mobile */
     max-width: 550px; 
 }
