@@ -43,11 +43,13 @@ h1 {
 .action-buttons {
     display: flex;
     gap: 8px;
+    width: 30%; 
+    height: 40px;
     /* Permet aux boutons de prendre la largeur restante, 
        ou 100% de la ligne si le selecteur est au-dessus */
     flex-grow: 1; 
     justify-content: center; /* Centre les boutons dans leur conteneur */
-    min-width: 0; /* Important pour le flex-grow sur mobile */
+    min-width: 20; /* Important pour le flex-grow sur mobile */
 }
 
 .action-buttons button {
@@ -61,12 +63,12 @@ h1 {
     padding: 16px 22px;
     font-size: 19px; 
     /* AJOUT CRUCIAL : Définir une hauteur minimale (pour les standards tactiles) */
-    min-height: 50px;
+    min-height: 60px;
     border-radius: 5px;
     border: 1px solid #ccc;
     cursor: pointer;
     transition: background-color 0.2s, border-color 0.2s;
-    height: fit-content;
+    height: 40px;
 }
 
 /* Styles généraux des boutons */
@@ -74,6 +76,7 @@ button {
     background-color: #3e5e9b;
     color: white;
     border: none;
+    height: 40px;
 }
 
 button:hover {
