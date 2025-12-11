@@ -21,7 +21,7 @@ h1 {
 
 /* --- Sélecteur de Longueur (OPTIMISÉ MOBILE) --- */
 .controls {
-    margin: 20px 0;
+    margin: 2px 2px;
     display: flex;
     /* Permet aux groupes (select et boutons) de passer à la ligne */
     flex-wrap: wrap; 
@@ -60,10 +60,10 @@ h1 {
 #longueur-select,
 /* Ciblage spécifique des éléments dans controls */
 .controls button { 
-    padding: 16px 22px;
+    padding: 0px 22px;
     font-size: 19px; 
     /* AJOUT CRUCIAL : Définir une hauteur minimale (pour les standards tactiles) */
-    min-height: 60px;
+    min-height: 45px;
     border-radius: 5px;
     border: 1px solid #ccc;
     cursor: pointer;
@@ -87,7 +87,7 @@ button:hover {
 .grille {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 3px;
     margin: 20px 0;
     /* NOUVEAU : Flex Shrink à 1 pour forcer l'ajustement en cas de débordement */
     flex-shrink: 1;
@@ -99,7 +99,7 @@ button:hover {
 
 .ligne {
     display: flex;
-    gap: 5px;
+    gap: 3px;
     width: 100%;
 }
 
@@ -116,7 +116,7 @@ button:hover {
     
     /* Style par défaut pour les cases non validées/vides */
     /* REMARQUE: J'ai laissé le clamp() car il est très utile pour le responsive */
-    font-size: 24px; /* Fixez-le temporairement à la taille maximale */
+    font-size: 18px; /* Fixez-le temporairement à la taille maximale */
     font-weight: bold;
     color: #1a1a1a; /* Couleur du texte dans les cases non validées */
     background-color: #d3d6da; /* Gris clair par défaut */
