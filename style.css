@@ -108,6 +108,10 @@ button:hover {
     flex-grow: 1; 
     aspect-ratio: 1 / 1; 
     
+    /* NOUVELLE RÈGLE : Limiter la largeur de chaque case. 
+       Une taille idéale est souvent entre 50px et 70px pour un bon équilibre. */
+    max-width: 40px; /* Ajustez cette valeur si nécessaire (ex: 70px pour des grilles plus grandes) */
+    
     /* *************************************** */
     /* *** MODIFICATION CRUCIALE ICI (Ligne ajoutée) *** */
     /* Utilisation d'une police MONOSPACE pour que chaque lettre ait la même largeur */
