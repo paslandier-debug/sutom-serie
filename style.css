@@ -9,7 +9,7 @@ body {
     background-color: #f7f7f7;
     color: #1a1a1a;
     margin: 0;
-    padding: 20px;
+    padding: 20px 10px;
     /* Empêche les débordements horizontaux sur mobile */
     overflow-x: hidden; 
 }
@@ -42,7 +42,7 @@ h1 {
 
 .action-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     /* Permet aux boutons de prendre la largeur restante, 
        ou 100% de la ligne si le selecteur est au-dessus */
     flex-grow: 1; 
@@ -58,10 +58,10 @@ h1 {
 #longueur-select,
 /* Ciblage spécifique des éléments dans controls */
 .controls button { 
-    padding: 16px 20px;
-    font-size: 18px; 
+    padding: 16px 22px;
+    font-size: 19px; 
     /* AJOUT CRUCIAL : Définir une hauteur minimale (pour les standards tactiles) */
-    min-height: 48px;
+    min-height: 50px;
     border-radius: 5px;
     border: 1px solid #ccc;
     cursor: pointer;
@@ -88,7 +88,7 @@ button:hover {
     margin: 20px 0;
     
     /* FIX MOBILE: Contraint la grille à la largeur de la vue */
-    width: 95vw; 
+    width: 120vw; 
     /* Contraint la largeur pour les écrans plus larges que le mobile */
     max-width: 550px; 
 }
