@@ -101,26 +101,47 @@ button:hover {
     display: flex;
     gap: 3px;
     width: 100%;
+    font-size: 0;
 }
-
+/* Centre le contenu (la lettre) à l'intérieur de chaque case de manière absolue */
+.case::before {
+    content: attr(data-lettre); /* Récupère le texte qui sera affiché */
+    
+    /* Centrage Absolu Classique */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* Hérite de la police et taille de la case */
+    font-size: inherit; 
+    font-weight: inherit;
+    color: inherit;
+    text-transform: inherit;
+    line-height: 1; /* S'assurer que le contenu n'a pas de hauteur excessive */
+    
+    /* L'espace entre les lettres est maintenant géré par le ::before */
+    padding: 0; 
+}
 .case {
     /* FIX CRUCIAL: flex-grow + aspect-ratio = Carré parfaitement adapté */
     flex-grow: 1; 
     aspect-ratio: 1 / 1; 
+    box-sizing: border-box; 
     
-    /* NOUVELLE RÈGLE : Limiter la largeur de chaque case. 
-       Une taille idéale est souvent entre 50px et 70px pour un bon équilibre. */
-    max-width: 40px; /* Ajustez cette valeur si nécessaire (ex: 70px pour des grilles plus grandes) */
+    /* MODIFICATIONS CRUCIALES POUR LE HACK D'ALIGNEMENT */
+    display: block; /* Important : Passe la case en bloc, pour que l'aspect ratio fonctionne mieux */
+    position: relative; /* Base pour le centrage absolu du contenu */
+    
     
     /* *************************************** */
-    /* *** MODIFICATION CRUCIALE ICI (Ligne ajoutée) *** */
     /* Utilisation d'une police MONOSPACE pour que chaque lettre ait la même largeur */
     font-family: 'Consolas', 'Courier New', monospace; 
     /* *************************************** */
     
     /* Style par défaut pour les cases non validées/vides */
     /* REMARQUE: J'ai laissé le clamp() car il est très utile pour le responsive */
-    font-size: 18px; /* Fixez-le temporairement à la taille maximale */
+    font-size: 16px; /* Fixez-le temporairement à la taille maximale */
     font-weight: bold;
     color: #1a1a1a; /* Couleur du texte dans les cases non validées */
     background-color: #d3d6da; /* Gris clair par défaut */
@@ -142,6 +163,7 @@ button:hover {
 /* Style de la case lorsqu'elle est activement saisie */
 .ligne-active .case.active-saisie {
     border: 2px solid #3e5e9b; /* Bordure bleue pour l'input actif */
+    font-size: 0;
 }
 
 /* --- Styles de Statut de Casse (après validation) --- */
@@ -150,12 +172,23 @@ button:hover {
 .absente, .mal_place, .bien_place {
     border: none;
     color: white; 
+    /* AJOUT/MODIFICATION CRUCIALE: Compense les 2px de bordure retirés par un padding de 2px */
+    padding: 2px;
 }
 
 .premiere_lettre {
     background-color: #3e5e9b !important; /* Couleur de base */
     color: white;
     border: none !important;
+    /* AJOUT/MODIFICATION CRUCIALE: Compense les 2px de bordure retirés par un padding de 2px */
+    padding: 2px;
+    /* FIX HAUTEUR AGRESSIF : Force la hauteur à 100% de la rangée */
+    height: 100%; 
+    
+    /* S'assurer que le centrage est correct après le changement de hauteur */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .absente {
@@ -305,7 +338,7 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .partie-item.victoire {

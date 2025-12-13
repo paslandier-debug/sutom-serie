@@ -9,6 +9,10 @@ let premiereLettre = '';
 let essaisCourants = [];
 let ligneActuelleIndex = 0;
 let jeuTermine = false;
+let KEY_MOT_DU_JOUR_PREFIX_6 = '';
+let KEY_MOT_DU_JOUR_PREFIX_7 = '';
+let KEY_MOT_DU_JOUR_PREFIX_8 = '';
+let KEY_MOT_DU_JOUR_PREFIX_9 = '';
 // Nouveau : Stocke l'état des lettres sur le clavier
 let etatClavier = {}; 
 
@@ -53,7 +57,7 @@ function sauvegarderEtatJeu() {
 
     const etat = {
         motCibleLongueur: motCibleLongueur,
-        premiereLettre: premiereLettre,
+        premiereLettre:premiereLettre,
         essaisCourants: essaisCourants,
         ligneActuelleIndex: ligneActuelleIndex,
         jeuTermine: jeuTermine,
@@ -261,11 +265,13 @@ function creerGrille(longueur) {
             caseDiv.id = `case-${i}-${j}`;
             
             if (j === 0) {
-                caseDiv.classList.add('premiere_lettre');
-                caseDiv.textContent = premiereLettre;
+            // Première lettre
+                caseDiv.dataset.lettre = premiereLettre; // STOCKER DANS L'ATTRIBUT
+                caseDiv.textContent = ''; // LAISSER VIDE
             } else {
-                // CORRECTION : Utiliser un espace insécable (\u00A0) au lieu d'une chaîne vide.
-                caseDiv.textContent = '\u00A0';
+                // Autres cases
+                caseDiv.dataset.lettre = ''; // L'attribut est vide par défaut
+                caseDiv.textContent = ''; // LAISSER VIDE
             }
 
             ligne.appendChild(caseDiv);
@@ -428,9 +434,11 @@ function mettreAJourAffichageSaisie(proposition) {
         let lettre = proposition[i] ? proposition[i].toUpperCase() : '';
 
         if (i === 0) {
-            caseDiv.textContent = premiereLettre;
+            caseDiv.dataset.lettre = premiereLettre;
+            caseDiv.textContent = ''; // Vider le contenu
         } else {
-            caseDiv.textContent = lettre;
+            caseDiv.dataset.lettre = lettre;
+            caseDiv.textContent = ''; // Vider le contenu
         }
 
         // Ajouter une classe "active" pour styler la case en cours de saisie
