@@ -163,7 +163,7 @@ button:hover {
 /* Style de la case lorsqu'elle est activement saisie */
 .ligne-active .case.active-saisie {
     border: 2px solid #3e5e9b; /* Bordure bleue pour l'input actif */
-    font-size: 0;
+    font-size: 16px;
 }
 
 /* --- Styles de Statut de Casse (après validation) --- */

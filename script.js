@@ -438,7 +438,7 @@ function mettreAJourAffichageSaisie(proposition) {
             caseDiv.textContent = ''; // Vider le contenu
         } else {
             caseDiv.dataset.lettre = lettre;
-            caseDiv.textContent = ''; // Vider le contenu
+            caseDiv.textContent = ''; 
         }
 
         // Ajouter une classe "active" pour styler la case en cours de saisie
