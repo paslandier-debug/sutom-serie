@@ -465,53 +465,55 @@ async function chargerMotCible(longueur) {
     // 1. VÉRIFICATION DU MOT DU JOUR TERMINÉ
     if (motDuJourSauvegarde) {
         const motSauvegarde = JSON.parse(motDuJourSauvegarde);
-        
-        if (motSauvegarde.date === dateJour && motSauvegarde.termine) {
-            
-            // SI TERMINÉE, ON RÉAFFICHE IMMÉDIATEMENT L'HISTORIQUE ET ON BLOQUE
-            motCibleLongueur = motSauvegarde.longueur;
-            premiereLettre = motSauvegarde.premiereLettre;
+        if (motSauvegarde.date === dateJour) { 
+            // si même date alors affichage partie terminée puis partie en cours, sinon chargement d'un nouveau mot
 
-            document.getElementById('info').textContent = `Mot de ${longueur} lettres. Commence par : ${motSauvegarde.premiereLettre}.`;
+            if (motSauvegarde.termine) {
             
-            // Reconstruit la grille, affiche les essais de l'historique et bloque le jeu.
-            afficherGrilleTerminee(longueur, dateJour, motSauvegarde.premiereLettre);
+                // SI TERMINÉE, ON RÉAFFICHE IMMÉDIATEMENT L'HISTORIQUE ET ON BLOQUE
+                motCibleLongueur = motSauvegarde.longueur;
+                premiereLettre = motSauvegarde.premiereLettre;
+
+                document.getElementById('info').textContent = `Mot de ${longueur} lettres. Commence par : ${motSauvegarde.premiereLettre}.`;
             
-            return; 
+                // Reconstruit la grille, affiche les essais de l'historique et bloque le jeu.
+                afficherGrilleTerminee(longueur, dateJour, motSauvegarde.premiereLettre);
+            
+                return; 
+            }
+        
+            // 2. TENTATIVE DE CHARGEMENT D'UNE PARTIE EN COURS (KEY_ETAT_JEU_X)
+            const etatSauvegarde = localStorage.getItem(getEtatJeuKey(longueur));
+
+            if (etatSauvegarde) {
+                 // Si on a un état sauvegardé pour cette longueur (partie en cours), on le charge.
+                const etat = JSON.parse(etatSauvegarde);
+        
+                motCibleLongueur = etat.motCibleLongueur;
+                premiereLettre = etat.premiereLettre;
+                essaisCourants = etat.essaisCourants;
+                ligneActuelleIndex = etat.ligneActuelleIndex;
+                jeuTermine = etat.jeuTermine;
+                etatClavier = etat.etatClavier || {}; 
+        
+                document.getElementById('longueur-select').value = String(motCibleLongueur);
+                document.getElementById('info').textContent = `Mot de ${motCibleLongueur} lettres. Commence par : ${premiereLettre}.`;
+        
+                creerGrille(motCibleLongueur);
+                essaisCourants.forEach((resultat, index) => {
+                afficherEssaiRepris(resultat, index); 
+                });
+        
+                const tousLesResultats = essaisCourants.reduce((acc, current) => acc.concat(current), []);
+                mettreAJourClavier(tousLesResultats); 
+                mettreAJourLigneActive();
+
+                document.getElementById('message').textContent = 'Partie en cours (chargée).';
+
+                return; // Reprise réussie
+            }
         }
     }
-    
-    // 2. TENTATIVE DE CHARGEMENT D'UNE PARTIE EN COURS (KEY_ETAT_JEU_X)
-    const etatSauvegarde = localStorage.getItem(getEtatJeuKey(longueur));
-
-    if (etatSauvegarde) {
-        // Si on a un état sauvegardé pour cette longueur (partie en cours), on le charge.
-        const etat = JSON.parse(etatSauvegarde);
-        
-        motCibleLongueur = etat.motCibleLongueur;
-        premiereLettre = etat.premiereLettre;
-        essaisCourants = etat.essaisCourants;
-        ligneActuelleIndex = etat.ligneActuelleIndex;
-        jeuTermine = etat.jeuTermine;
-        etatClavier = etat.etatClavier || {}; 
-        
-        document.getElementById('longueur-select').value = String(motCibleLongueur);
-        document.getElementById('info').textContent = `Mot de ${motCibleLongueur} lettres. Commence par : ${premiereLettre}.`;
-        
-        creerGrille(motCibleLongueur);
-        essaisCourants.forEach((resultat, index) => {
-            afficherEssaiRepris(resultat, index); 
-        });
-        
-        const tousLesResultats = essaisCourants.reduce((acc, current) => acc.concat(current), []);
-        mettreAJourClavier(tousLesResultats); 
-        mettreAJourLigneActive();
-
-        document.getElementById('message').textContent = 'Partie en cours (chargée).';
-
-        return; // Reprise réussie
-    }
-
 
     // 3. CHARGEMENT D'UN NOUVEAU MOT VIA API
     

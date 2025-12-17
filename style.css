@@ -183,7 +183,7 @@ button:hover {
     /* AJOUT/MODIFICATION CRUCIALE: Compense les 2px de bordure retirés par un padding de 2px */
     padding: 2px;
     /* FIX HAUTEUR AGRESSIF : Force la hauteur à 100% de la rangée */
-    height: 100%; 
+    /* height: 100%; PL-20251215 : ligne enlevée suite test sur firefox : 1ere lettre toute petite
     
     /* S'assurer que le centrage est correct après le changement de hauteur */
     display: flex !important;
