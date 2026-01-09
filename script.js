@@ -5,7 +5,6 @@ const SERVER_URL = '/api';
 const MAX_ESSAIS = 6;
 
 let motCibleLongueur = 0;
-let premiereLettre = '';
 let essaisCourants = [];
 let ligneActuelleIndex = 0;
 let jeuTermine = false;
@@ -13,6 +12,11 @@ let KEY_MOT_DU_JOUR_PREFIX_6 = '';
 let KEY_MOT_DU_JOUR_PREFIX_7 = '';
 let KEY_MOT_DU_JOUR_PREFIX_8 = '';
 let KEY_MOT_DU_JOUR_PREFIX_9 = '';
+let premiereLettre = '';
+let premiere_lettre = '';
+let premiereLettreCible = '';
+let première = '';
+let Première = '';
 // Nouveau : Stocke l'état des lettres sur le clavier
 let etatClavier = {}; 
 
@@ -38,6 +42,23 @@ function getDateDuJour() {
     // Utiliser le fuseau horaire local (ajusté pour la compatibilité FR/CA pour le format YYYY-MM-DD)
     return d.toLocaleDateString('fr-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
 }
+
+function cleanStorageIfNewDay() {
+    const today = new Date().toLocaleDateString(); // Format "DD/MM/YYYY"
+    const lastVisit = localStorage.getItem('last_visit');
+
+    if (lastVisit && lastVisit !== today) {
+        // C'est un jour différent ! On vide tout.
+        localStorage.clear();
+        console.log("Nouveau jour détecté : LocalStorage réinitialisé.");
+    }
+
+    // On met à jour la date de visite pour la prochaine fois
+    localStorage.setItem('last_visit', today);
+}
+
+// Appeler la fonction au tout début de votre script.js
+cleanStorageIfNewDay();
 
 // Fonction utilitaire pour obtenir la clé de stockage spécifique à la longueur
 function getEtatJeuKey(longueur) {
