@@ -8,15 +8,15 @@ let motCibleLongueur = 0;
 let essaisCourants = [];
 let ligneActuelleIndex = 0;
 let jeuTermine = false;
-let KEY_MOT_DU_JOUR_PREFIX_6 = '';
-let KEY_MOT_DU_JOUR_PREFIX_7 = '';
-let KEY_MOT_DU_JOUR_PREFIX_8 = '';
-let KEY_MOT_DU_JOUR_PREFIX_9 = '';
-let premiereLettre = '';
-let premiere_lettre = '';
-let premiereLettreCible = '';
-let première = '';
-let Première = '';
+var KEY_MOT_DU_JOUR_PREFIX_6 = '';
+var KEY_MOT_DU_JOUR_PREFIX_7 = '';
+var KEY_MOT_DU_JOUR_PREFIX_8 = '';
+var KEY_MOT_DU_JOUR_PREFIX_9 = '';
+var premiereLettre = '';
+var premiere_lettre = '';
+var premiereLettreCible = '';
+var première = '';
+var Première = '';
 // Nouveau : Stocke l'état des lettres sur le clavier
 let etatClavier = {}; 
 
@@ -543,6 +543,7 @@ async function chargerMotCible(longueur) {
     ligneActuelleIndex = 0;
     jeuTermine = false;
     etatClavier = {}; 
+    premiereLettre = ""
     
     try {
         const response = await fetch(`${SERVER_URL}/mot-cible/${longueur}`);
